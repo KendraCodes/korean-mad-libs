@@ -19,7 +19,14 @@
         [ "uncle", "삼촌" ],
         [ "mother", "어머니" ],
         [ "older sister (for males)", "누나" ],
-        [ "we/us", "오리" ]
+        [ "we/us", "오리" ],
+        [ "Kim Namjoon", "김남준" ],
+        [ "Kim Seokjin", "김석진" ],
+        [ "Min Yoongi", "민윤기" ],
+        [ "Jung Hoseok", "정호석" ],
+        [ "Park Jimin", "박지민" ],
+        [ "Kim Taehyung", "김태형" ],
+        [ "Jeon Jungkook", "전정국" ]
     ],
     "placeNouns": [
         [ "room", "방" ],
@@ -30,7 +37,8 @@
         [ "restaurant", "식당" ],
         [ "bank", "은행" ],
         [ "Canada", "캐나다" ],
-        [ "school", "학교" ]
+        [ "school", "학교" ],
+        [ "Korea", "한국" ]
     ],
     "timeNouns": [
         [ "Sunday", "일요일"],
@@ -99,7 +107,6 @@
         [ "on top of", "위" ],
         [ "in front of", "앞" ],
         [ "behind", "뒤" ]
-
     ],
     "adjectives": [
         [ "beautiful" , "아름답다" ],
@@ -116,6 +123,7 @@
         [ "happy" , "행복하다" ],
         [ "fun/funny" , "재미있다" ],
         [ "tired" , "피곤하다" ],
+        [ "old", "낡다" ],
         [ "old/worn" , "오래되다" ],
         [ "wide", "넓다" ],
         [ "hungry" , "배고프다" ],
@@ -131,12 +139,15 @@
         [ "different" , "다르다" ],
         [ "fast" , "빠르다" ],
         [ "thin" , "마르다" ],
-        [ "far away" , "멀다" ]
+        [ "far away" , "멀다" ],
+        [ "dangerous", "위험하다" ],
+        [ "happy", "행복하다" ]
     ],
     "placeVerbs": [
-        [ "is at", "있다" ],
+        [ "is staying at", "있다" ],
         [ "goes to", "가다" ],
-        [ "comes to", "오다" ]
+        [ "comes to", "오다" ],
+        [ "lives at", "실다" ]
     ],
     "verbs": [
         [ "makes", "만들다" ],
@@ -151,7 +162,6 @@
         [ "studies", "공부하다" ],
         [ "throws", "던지다" ],
         [ "crosses", "건너아" ],
-        [ "comes", "오다" ],
         [ "sees", "보다" ],
         [ "exercises", "운동하다" ],
         [ "listens", "들어보다" ],
@@ -171,7 +181,8 @@
         [ "chooses", "고르다" ],
         [ "opens", "열다" ],
         [ "practices", "연습하다" ],
-        [ "understands", "이해하다" ]
+        [ "understands", "이해하다" ],
+        [ "dances", "춤추다" ]
     ],
     "adverbs": [
         [ "always", "항상" ],
