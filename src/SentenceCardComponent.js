@@ -50,8 +50,10 @@ export class SentenceCardComponent extends Component {
           <p>{this.state.eng}</p>
           {this.state.showKorean ?
             <p>{this.state.kor}</p> :
-            <p><button onClick={this.onShowAnswerClick}>Show answer</button></p>}
-          <button onClick={this.onNewSentenceClick}>New Sentence</button>
+            <p><button className="show-answer-button" onClick={this.onShowAnswerClick}>Show answer</button></p>}
+          <div className="new-sentence-button-container">
+            <button className="new-sentence-button" onClick={this.onNewSentenceClick}>New Sentence</button>
+          </div>
         </div>
       </div>
     );

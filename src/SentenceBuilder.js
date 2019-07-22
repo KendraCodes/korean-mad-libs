@@ -8,7 +8,7 @@ export class SentenceBuilder {
   constructor(dictionary) {
     let conjugator = new Conjugator();
     this.dictionary = dictionary;
-    
+
     this.possibleSentenceStructures = this.getPossibleSentenceStructures();
     this.verbTenses = conjugator.getVerbTenses();
     this.adjectiveTenses = conjugator.getAdjectiveTenses();
@@ -169,7 +169,7 @@ export class SentenceBuilder {
     if (subj.length > 2) {
       sp = "";
     }
-    
+
     //도 goes before 에 if it's present
     if (place.length > 2) {
       place[1] = place[1].slice(0, -1) + "에" + place[1].slice(-1);
@@ -211,12 +211,12 @@ export class SentenceBuilder {
       kor: josa(`${subj[1]}${sp} ${other[1]}${preposition[1]} ${tense[1]("있다")}`)
     }
   }
-  
+
   nounVerbs = () => {
     let subj = this.decorateNoun(this.subjectNounPlus());
     let verb = this.verb();
     let tense = this.verbTense();
-    
+
     let sp = "#{는}";
     //more than two things means decorateNoun already put a particle on it
     if (subj.length > 2) {
@@ -246,13 +246,13 @@ export class SentenceBuilder {
       kor: josa(`${subj[1]}${sp} ${tense[1](adjective[1])}`)
     }
   }
-  
+
   nounVerbsNoun = () => {
     let subj = this.decorateNoun(this.subjectNounPlus());
     let verb = this.verb();
     let obj = this.decorateNoun(this.noun());
     let tense = this.verbTense();
-    
+
     let sp = "#{는}";
     //more than two things means decorateNoun already put a particle on it
     if (subj.length > 2) {

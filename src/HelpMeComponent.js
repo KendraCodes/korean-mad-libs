@@ -45,7 +45,7 @@ export class HelpMeComponent extends Component {
       currentAction: action,
       currentText: text,
       displayResults: results.map((term, index) => {
-        return <p key={"searchResult" + index}>{term}</p>
+        return <p className="search-result" key={"searchResult" + index}>{term}</p>
       })
     });
   }
@@ -60,16 +60,21 @@ export class HelpMeComponent extends Component {
   render() {
     // !!this.state.eng && !!this.state.kor && 
     return (
-      <div className="help-me-bar">
-        <div className="searchBox">Help Me:
+      <div className="help-me-container">
+        <div className="help-me-section">
+          <div className="search-dropdown">Help Me
                 <select onChange={this.onBoxDropdownChange} name="helpMeDropdown">
-            <option value="search">Search</option>
-            <option value="verb">Conjugate Verb</option>
-            <option value="adj">Conjugate Adjective</option>
-          </select>
-          <br />
-          <input type="text" onChange={this.onSearchTextChange}></input>
-          {this.state.displayResults}
+              <option value="search">Search</option>
+              <option value="verb">Conjugate Verb</option>
+              <option value="adj">Conjugate Adjective</option>
+            </select>
+          </div>
+          <div className="help-me-input-container">
+            <input type="text" onChange={this.onSearchTextChange}></input>
+          </div>
+          <div className="display-results">
+            {this.state.displayResults}
+          </div>
         </div>
       </div>
     );
