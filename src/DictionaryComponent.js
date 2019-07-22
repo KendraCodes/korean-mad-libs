@@ -24,7 +24,10 @@ export class DictionaryComponent extends Component {
       return false;
     }
 
-    fetch('https://api.jsonbin.io/b/5d0c50df84683733fbc7bab6', {
+    fetch(
+      // 'https://api.jsonbin.io/b/5d0c50df84683733fbc7bab6'
+      'https://api.jsonbin.io/b/5d35fa4b820de330bab37ab5'
+      , {
       "method": "PUT",
       body: JSON.stringify(updatedVocab),
       headers: {
@@ -56,6 +59,12 @@ export class DictionaryComponent extends Component {
     });
   }
 
+
+  updateWordInList = (event) => {
+    //get the index of hte words delete from list and then add it into that same position??
+    console.log("pair " + event.target.dataset.pair + ", " + event.target.value + " " );
+  }
+
   render() {
     return (
       <div style={this.props.show ? {} : {display: 'none'}}>Add New Word
@@ -66,9 +75,24 @@ export class DictionaryComponent extends Component {
             })}
           </select>
         </div>
+
+        <div>
+          {this.dictionary.getVocab(this.state.newCategory).map((term, index) =>{
+            if(term !== undefined){
+              console.log(term + " " + index);
+              return <p> 
+                  <input type="text" data-pair={index} onBlur={this.updateWordInList} defaultValue={term[0]}></input>
+                  <input type="text" data-pair={index} onBlur={this.updateWordInList} defaultValue={term[1]}></input>  
+              </p> }
+            return 
+          })}
+        </div>
+        <button onClick={this.dosomething}>Edit Existing Words</button>
+
         <div>Korean<input onChange={this.onNewKorWordTextChange} type="text" ></input></div>
         <div>English<input onChange={this.onNewEngWordTextChange} type="text" ></input></div>
-        <button onClick={this.onSubmitNewWordClick}>submit</button>
+         
+        <button onClick={this.onSubmitNewWordClick}>Add New Word</button>
       </div>
     )
   }
