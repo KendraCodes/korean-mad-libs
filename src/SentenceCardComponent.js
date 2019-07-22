@@ -1,0 +1,59 @@
+import React, { Component } from 'react';
+
+import { SentenceBuilder } from './SentenceBuilder';
+import './App.css';
+
+export class SentenceCardComponent extends Component {
+
+
+  constructor(props) {
+    super(props);
+
+
+
+    this.dictionary = props.dictionary;
+    this.sentenceBuilder = new SentenceBuilder(this.props.dictionary);
+    // this.onNewSentenceClick();
+    // this.dictionary.makeQuizletFile();
+    const firstSentence = this.sentenceBuilder.makeSentence();
+    this.state = {
+      eng: firstSentence.eng,
+      kor: firstSentence.kor,
+      showKorean: false
+    };
+  }
+
+
+
+  onShowAnswerClick = () => {
+    this.setState({
+      showKorean: true
+    });
+  }
+
+  onNewSentenceClick = () => {
+    console.log('making a new sentence');
+    let newSentence = this.sentenceBuilder.makeSentence();
+    this.setState({
+      eng: newSentence.eng,
+      kor: newSentence.kor,
+      showKorean: false
+    });
+  }
+
+
+  render() {
+    console.log(this.state);
+    return (
+      <div className="card-container">
+        <div className="card">
+          <p>{this.state.eng}</p>
+          {this.state.showKorean ?
+            <p>{this.state.kor}</p> :
+            <p><button onClick={this.onShowAnswerClick}>Show answer</button></p>}
+          <button onClick={this.onNewSentenceClick}>New Sentence</button>
+        </div>
+      </div>
+    );
+  }
+}

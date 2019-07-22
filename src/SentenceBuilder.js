@@ -1,13 +1,13 @@
-import * as vocab from './vocab.json';
+
 import { josa, getJosaPicker, makeJosaify } from 'josa';
-import * as hangul from 'hangul-js';
 
 import { Conjugator } from './Conjugator.js';
 
 export class SentenceBuilder {
 
-  constructor() {
+  constructor(dictionary) {
     let conjugator = new Conjugator();
+    this.dictionary = dictionary;
     
     this.possibleSentenceStructures = this.getPossibleSentenceStructures();
     this.verbTenses = conjugator.getVerbTenses();
@@ -22,49 +22,6 @@ export class SentenceBuilder {
       "그것": true,
       "저것": true,
     }
-  }
-
-  findWord = (searchTerm) => {
-    if (searchTerm.length === 0) {
-      return [];
-    }
-    searchTerm = searchTerm.toLowerCase();
-    let results = [];
-    let searchArray = (tuple) => {
-      let engWord = tuple[0].toLowerCase();
-      if (engWord.includes(searchTerm) || searchTerm.includes(engWord)) {
-        results.push(`${tuple[1]} (${tuple[0]})`);
-      }
-      let korWord = tuple[1];
-      if (korWord.includes(searchTerm) || searchTerm.includes(korWord)) {
-        results.push(`${tuple[0]} (${tuple[1]})`);
-      }
-    };
-
-    Object.keys(vocab).forEach(key => {
-      if (key != "default") {
-        vocab[key].forEach(searchArray);
-      }
-    });    
-
-    return results;
-  }
-
-  conjugateAdjective = (adj) => {
-    console.log("Adjective");
-    console.log(adj);
-    console.log("descriptive adjective Form:" + this.getDescriptiveAdj(adj));
-    this.adjectiveTenses.forEach((tense) => {
-      console.log(tense[0] + ": " + tense[1](adj));
-    });
-  }
-
-  conjugateVerb = (verb) => {
-    console.log("Verb");
-    console.log(verb);
-    this.verbTenses.forEach((tense) => {
-      console.log(tense[0] + ": " + tense[1](verb));
-    });
   }
 
   getPossibleSentenceStructures = () => {
@@ -91,25 +48,25 @@ export class SentenceBuilder {
 
   chooseRandom = (arr) => { return arr[Math.floor(Math.random() * arr.length)]; }
 
-  placeNoun = () => { return this.chooseRandom(vocab.placeNouns); }
+  placeNoun = () => { return this.chooseRandom(this.dictionary.getVocab("placeNouns")); }
 
-  timeNoun = () => { return this.chooseRandom(vocab.timeNoun); }
+  timeNoun = () => { return this.chooseRandom(this.dictionary.getVocab("timeNoun")); }
 
-  subjectNoun = () => { return this.chooseRandom(vocab.subjectOnlyNouns); }
+  subjectNoun = () => { return this.chooseRandom(this.dictionary.getVocab("subjectOnlyNouns")); }
 
-  subjectNounPlus = () => { return this.chooseRandom(vocab.nouns.concat(vocab.subjectOnlyNouns)); }
+  subjectNounPlus = () => { return this.chooseRandom(this.dictionary.getVocab("nouns", "subjectOnlyNouns")); }
 
-  noun = () => { return this.chooseRandom(vocab.nouns); }
+  noun = () => { return this.chooseRandom(this.dictionary.getVocab("nouns")); }
 
-  preposition = () => { return this.chooseRandom(vocab.prepositions); }
+  preposition = () => { return this.chooseRandom(this.dictionary.getVocab("prepositions")); }
 
-  adjective = () => { return this.chooseRandom(vocab.adjectives); }
+  adjective = () => { return this.chooseRandom(this.dictionary.getVocab("adjectives")); }
 
-  verb = () => { return this.chooseRandom(vocab.verbs); }
+  verb = () => { return this.chooseRandom(this.dictionary.getVocab("verbs")); }
 
-  placeVerb = () => { return this.chooseRandom(vocab.placeVerbs); }
+  placeVerb = () => { return this.chooseRandom(this.dictionary.getVocab("placeVerbs")); }
 
-  adverb = () => { return this.chooseRandom(vocab.adverbs); }
+  adverb = () => { return this.chooseRandom(this.dictionary.getVocab("adverbs")); }
 
   verbTense = () => { return this.chooseRandom(this.verbTenses); }
 
@@ -175,7 +132,7 @@ export class SentenceBuilder {
   }
 
   phrase = () => {
-    let phrase = this.chooseRandom(vocab.phrases);
+    let phrase = this.chooseRandom(this.dictionary.getVocab("phrases"));
     return {
       eng: phrase[0],
       kor: phrase[1]
@@ -207,6 +164,17 @@ export class SentenceBuilder {
     let subj = this.decorateNoun(this.subjectNounPlus());
     let place = this.decorateNoun(this.placeNoun());
 
+    let sp = "#{는}";
+    //more than two things means decorateNoun already put a particle on it
+    if (subj.length > 2) {
+      sp = "";
+    }
+    
+    //도 goes before 에 if it's present
+    if (place.length > 2) {
+      place[1] = place[1].slice(0, -1) + "에" + place[1].slice(-1);
+    }
+
     let verb, tense;
     let num = Math.floor(Math.random() * 2);
     if (num > 0) {
@@ -217,14 +185,9 @@ export class SentenceBuilder {
       tense = this.adjectiveTense();
     }
 
-    let sp = "#{는}";
-    //more than two things means decorateNoun already put a particle on it
-    if (subj.length > 2) {
-      sp = "";
-    }
     return {
       eng: `(the) ${subj[0]} ${verb[0]} (the) ${place[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${place[1]}에 ${tense[1](verb[1])}`)
+      kor: josa(`${subj[1]}${sp} ${place[1]} ${tense[1](verb[1])}`)
     }
   }
 
@@ -239,9 +202,13 @@ export class SentenceBuilder {
     if (subj.length > 2) {
       sp = "";
     }
+    if (other.length > 2) {
+      other[1] = other[1].slice(0, -1) + "에" + other[1].slice(-1);
+    }
+
     return {
       eng: `(the) ${subj[0]} is ${preposition[0]} (the) ${other[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${other[1]}${preposition[1]}에 ${tense[1]("있다")}`)
+      kor: josa(`${subj[1]}${sp} ${other[1]}${preposition[1]} ${tense[1]("있다")}`)
     }
   }
   
@@ -260,6 +227,7 @@ export class SentenceBuilder {
       kor: josa(`${subj[1]}${sp} ${tense[1](verb[1])}`)
     }
   }
+
   nounIsAdjective = () => {
     let subj = this.decorateNoun(this.subjectNounPlus());
     let adjective = this.adjective();
@@ -268,6 +236,10 @@ export class SentenceBuilder {
     let sp = "#{는}";
     if (adjective[1] == "많다") {
       sp = "${이}";
+    }
+    //more than two things means decorateNoun already put a particle on it
+    if (subj.length > 2) {
+      sp = "";
     }
     return {
       eng: `(the) ${subj[0]} is ${adjective[0]} (${tense[0]})`,
