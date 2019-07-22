@@ -9,11 +9,8 @@ export class SentenceCardComponent extends Component {
   constructor(props) {
     super(props);
 
-
-
     this.dictionary = props.dictionary;
     this.sentenceBuilder = new SentenceBuilder(this.props.dictionary);
-    // this.onNewSentenceClick();
     // this.dictionary.makeQuizletFile();
     const firstSentence = this.sentenceBuilder.makeSentence();
     this.state = {
@@ -32,7 +29,6 @@ export class SentenceCardComponent extends Component {
   }
 
   onNewSentenceClick = () => {
-    console.log('making a new sentence');
     let newSentence = this.sentenceBuilder.makeSentence();
     this.setState({
       eng: newSentence.eng,
@@ -43,9 +39,8 @@ export class SentenceCardComponent extends Component {
 
 
   render() {
-    console.log(this.state);
     return (
-      <div className="card-container">
+      <div className="center-container" style={this.props.show ? {} : { display: 'none' }}>
         <div className="card">
           <p>{this.state.eng}</p>
           {this.state.showKorean ?

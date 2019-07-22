@@ -1,3 +1,4 @@
+import { Conjugator } from "./Conjugator";
 
 
 export class Dictionary {
@@ -16,6 +17,9 @@ export class Dictionary {
       throw new Error("Cannot construct Dictionary with empty arguments, call Dictionary.create() instead.");
     }
     this.vocab = vocab;
+    const conjugator = new Conjugator();
+    this.verbTenses = conjugator.getVerbTenses();
+    this.adjectiveTenses = conjugator.getAdjectiveTenses();
   }
 
 
@@ -44,7 +48,8 @@ export class Dictionary {
 
   conjugateAdjective = (adj) => {
     let forms = [];
-    forms.push("Descriptive form: " + this.getDescriptiveAdj(adj));
+    const conjugator = new Conjugator();
+    forms.push("Descriptive form: " + conjugator.makeAdjectiveDescriptive(adj));
     this.adjectiveTenses.forEach((tense) => {
       forms.push(tense[0] + ": " + tense[1](adj));
     });
@@ -60,8 +65,6 @@ export class Dictionary {
   }
 
   addVocabWord = (category, english, korean) => {
-    console.log(category)
-    console.log(this.vocab)
     //if both parts match an existing entry, don't add it
     if (this.vocab[category].some(tuple => tuple[0] == english && tuple[1] == korean)) {
       return false;
@@ -90,7 +93,5 @@ export class Dictionary {
         output = output + line;
       });
     });
-    console.log(output);
-
   }
 }

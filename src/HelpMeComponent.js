@@ -60,7 +60,7 @@ export class HelpMeComponent extends Component {
   render() {
     // !!this.state.eng && !!this.state.kor && 
     return (
-      <div className="help-me-container">
+      <div className="center-container" style={this.props.show ? {} : {display: 'none'}}>
         <div className="help-me-section">
           <div className="search-dropdown">Help Me
                 <select onChange={this.onBoxDropdownChange} name="helpMeDropdown">

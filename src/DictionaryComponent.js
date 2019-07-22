@@ -58,11 +58,11 @@ export class DictionaryComponent extends Component {
 
   render() {
     return (
-      <div>Add New Word
+      <div style={this.props.show ? {} : {display: 'none'}}>Add New Word
                 <div>Category
                 <select onChange={this.onNewCategoryDropdownChange} name="addWordDropdown">
             {this.dictionary.getVocabCategories().map((category) => {
-              return <option value={category}>{category}</option>
+              return <option key={category} value={category}>{category}</option>
             })}
           </select>
         </div>
