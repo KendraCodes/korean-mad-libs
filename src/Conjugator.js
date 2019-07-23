@@ -2,8 +2,98 @@ import * as hangul from 'hangul-js';
 
 export class Conjugator {
 
+  levels = [
+    // '하소서체', //하나이다 archaic highest form used to address kings and queens or God
+    '합쇼체', //합니다 most common politest form for strangers, customers, etc
+    // '하요체', //하오 archaic formal neutral, sometimes used on internet
+    // '하게체', //하네 archaic formal netural, used by old people mostly
+    '해라체', //한다 plain form, used in writing or quoting
+    '해요체', //해요 informal polite
+    '해체', //해/해여 least formal, for children or very close friends
+  ];
 
-  makeAdjectiveDescriptive = (adj) => {
+  tenses = [
+    'past',
+    'present',
+    'future',
+  ];
+
+  constructions = [
+    ['ㄴ/은ify adjective', this.ㄴ은ifyAdjective]
+  ];
+
+  buildConjugator = (tense, level, isVerb) => {
+    const label = `${tense} ${level}`;
+    let conjugator;
+
+    if (tense === 'past') {
+      const pastPrinciples = {
+        '합쇼체': 'ㅆ습니다',
+        '해라체': 'ㅆ다',
+        '해요체': 'ㅆ어요',
+        '해체': 'ㅆ어'
+      }
+      conjugator = (word) => {
+        return this.kor_append어아principle(this.kor_stripLast(word), pastPrinciples[level], isVerb);
+      }
+    }
+    else if (tense === 'present') {
+      if (level === '합쇼체') {
+        conjugator = (word) => {
+          return this.kor_addVC(this.kor_stripLast(word), "ㅂ니다", "습니다", isVerb);
+        }
+      } else if (level === '해라체') {
+        if (isVerb) {
+          conjugator = (verb) => {
+            return this.kor_addVC(this.kor_stripLast(verb), "ㄴ다", "는다", isVerb);
+          }
+        } else {
+          conjugator = (adj) => {
+            return adj;
+          }
+        }
+      } else if (level === '해요체' || level === '해체') {
+        conjugator = (word) => {
+          return this.kor_append어아principle(this.kor_stripLast(word), level === '해요체' ? '요' : '', isVerb);
+        }
+      }
+    }
+    else if (tense === 'future') {
+      const futurePrinciples = {
+        '합쇼체': '겠습니다',
+        '해라체': '겠다',
+        '해요체': '겠어요',
+        '해체': '겠어'
+      }
+      conjugator = (word) => {
+        return this.kor_stripLast(word) + futurePrinciples[level];
+      }
+    }
+
+    return [label, conjugator];
+  }
+
+  getVerbTenses = () => {
+    const verbTenses = [];
+    this.tenses.forEach((tense) => {
+      this.levels.forEach((level) => {
+        verbTenses.push(this.buildConjugator(tense, level, true));
+      });
+    });
+    return verbTenses;
+  }
+
+  getAdjectiveTenses = () => {
+    const adjTenses = [];
+    this.tenses.forEach((tense) => {
+      this.levels.forEach((level) => {
+        adjTenses.push(this.buildConjugator(tense, level, false));
+      });
+    });
+    return adjTenses;
+  }
+
+  ㄴ은ifyAdjective = (adj) => {
     if (adj.slice(-2) === "있다") {
       return this.kor_stripLast(adj) + "는";
     }
@@ -19,72 +109,6 @@ export class Conjugator {
     }
 
     return this.kor_addVC(stem, "ㄴ", "은", isVerb);
-  }
-
-  getVerbTenses = () => {
-    let isVerb = true;
-    return [
-      ["plain past", (verb) => {
-        return this.kor_append어아principle(this.kor_stripLast(verb), "ㅆ다", isVerb);
-      }],
-      ["plain present", (verb) => {
-        return this.kor_addVC(this.kor_stripLast(verb), "ㄴ다", "는다", isVerb);
-      }],
-      ["plain future", (verb) => {
-        return this.kor_stripLast(verb) + "겠다";
-      }],
-      ["formal polite past", (verb) => {
-        return this.kor_append어아principle(this.kor_stripLast(verb), "ㅆ습니다", isVerb);
-      }],
-      ["formal polite present", (verb) => {
-        return this.kor_addVC(this.kor_stripLast(verb), "ㅂ니다", "습니다", isVerb);
-      }],
-      ["formal polite future", (verb) => {
-        return this.kor_stripLast(verb) + "겠습니다";
-      }],
-      ["informal polite past", (verb) => {
-        return this.kor_append어아principle(this.kor_stripLast(verb), "ㅆ어요", isVerb);
-      }],
-      ["informal polite present", (verb) => {
-        return this.kor_append어아principle(this.kor_stripLast(verb), "요", isVerb);
-      }],
-      ["informal polite future", (verb) => {
-        return this.kor_stripLast(verb) + "겠어요";
-      }]
-    ];
-  }
-
-  getAdjectiveTenses = () => {
-    let isVerb = false;
-    return [
-      ["plain past", (adj) => {
-        return this.kor_append어아principle(this.kor_stripLast(adj), "ㅆ다", isVerb);
-      }],
-      ["plain present", (adj) => {
-        return adj;
-      }],
-      ["plain future", (adj) => {
-        return this.kor_stripLast(adj) + "겠다";
-      }],
-      ["formal polite past", (adj) => {
-        return this.kor_append어아principle(this.kor_stripLast(adj), "ㅆ습니다", isVerb);
-      }],
-      ["formal polite present", (adj) => {
-        return this.kor_addVC(this.kor_stripLast(adj), "ㅂ니다", "습니다", isVerb);
-      }],
-      ["formal polite future", (adj) => {
-        return this.kor_stripLast(adj) + "겠습니다";
-      }],
-      ["informal polite past", (adj) => {
-        return this.kor_append어아principle(this.kor_stripLast(adj), "ㅆ어요", isVerb);
-      }],
-      ["informal polite present", (adj) => {
-        return this.kor_append어아principle(this.kor_stripLast(adj), "요", isVerb);
-      }],
-      ["informal polite future", (adj) => {
-        return this.kor_stripLast(adj) + "겠어요";
-      }]
-    ];
   }
 
   kor_concat = (...items) => {

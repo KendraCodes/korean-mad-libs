@@ -69,7 +69,7 @@ export class DictionaryComponent extends Component {
 
   render() {
     const vocabCategoriesDropdown = (
-      <select onChange={this.onCategoryDropdownChange} name="addWordDropdown" value={this.state}>
+      <select onChange={this.onCategoryDropdownChange} name="addWordDropdown" value={this.state.curCategory}>
         {this.dictionary.getVocabCategories().map((category) => {
           return <option key={category} value={category}>{category}</option>
         })}

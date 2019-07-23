@@ -56,7 +56,7 @@ class App extends Component {
             />
             {!this.state.showDictionary &&
               <div className="center-container fix-my-grammar">
-                <a href={href} target="_blank">Report a grammar or spelling mistake?</a>
+                <a href={href} target="_blank">Report a grammar or spelling mistake</a>
               </div>
             }
             <HelpMeComponent

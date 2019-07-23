@@ -22,7 +22,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; 
 }
 
 h1 {
@@ -70,6 +70,25 @@ h1 {
   font-size: 20px;
   min-height: 32px;
   margin: 0px 0px 12px 0px;
+  padding: 4px;
+  letter-spacing: 0.0625em;
+  font-family: Verdana, Tahoma, sans-serif, monospace;
+}
+
+.user-input-container {
+  margin: 0px 0px 12px 0px;
+  padding: 0px;
+}
+
+.user-input-container input {
+  box-sizing: border-box;
+  font-size: 20px;
+  min-height: 32px;
+  width: 100%;
+  padding: 2px;
+  margin: 0px;
+  letter-spacing: 0.0625em;
+  font-family: Verdana, Tahoma, sans-serif, monospace;
 }
 
 .show-answer-button {

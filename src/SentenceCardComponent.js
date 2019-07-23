@@ -13,9 +13,11 @@ export class SentenceCardComponent extends Component {
     this.sentenceBuilder = new SentenceBuilder(this.props.dictionary);
     // this.dictionary.makeQuizletFile();
     const firstSentence = this.sentenceBuilder.makeSentence();
+    this.textInput = React.createRef();
     this.state = {
       eng: firstSentence.eng,
       kor: firstSentence.kor,
+      userSentence: '',
       showKorean: false
     };
   }
@@ -30,19 +32,29 @@ export class SentenceCardComponent extends Component {
 
   onNewSentenceClick = () => {
     let newSentence = this.sentenceBuilder.makeSentence();
+    this.textInput.current.focus();
     this.setState({
       eng: newSentence.eng,
       kor: newSentence.kor,
+      userSentence: '',
       showKorean: false
     });
   }
 
+  onTextChange = (event) => {
+    this.setState({
+      userSentence: event.target.value
+    });
+  }
 
   render() {
     return (
       <div className="center-container" style={this.props.show ? {} : { display: 'none' }}>
         <div className="card">
           <p>{this.state.eng}</p>
+          <div className="user-input-container" >
+            <input ref={this.textInput} type="text" onChange={this.onTextChange} value={this.state.userSentence} />
+          </div>
           {this.state.showKorean ?
             <p>{this.state.kor}</p> :
             <p><button className="show-answer-button" onClick={this.onShowAnswerClick}>Show answer</button></p>}

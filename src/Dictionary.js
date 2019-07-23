@@ -63,7 +63,7 @@ export class Dictionary {
   conjugateAdjective = (adj) => {
     let forms = [];
     const conjugator = new Conjugator();
-    forms.push("Descriptive form: " + conjugator.makeAdjectiveDescriptive(adj));
+    forms.push("Descriptive form: " + conjugator.ㄴ은ifyAdjective(adj));
     this.adjectiveTenses.forEach((tense) => {
       forms.push(tense[0] + ": " + tense[1](adj));
     });

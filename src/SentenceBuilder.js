@@ -12,7 +12,7 @@ export class SentenceBuilder {
     this.possibleSentenceStructures = this.getPossibleSentenceStructures();
     this.verbTenses = conjugator.getVerbTenses();
     this.adjectiveTenses = conjugator.getAdjectiveTenses();
-    this.getDescriptiveAdj = conjugator.makeAdjectiveDescriptive;
+    this.getDescriptiveAdj = conjugator.ㄴ은ifyAdjective;
     this.isPronoun = {
       "오리": true,
       "저": true,
