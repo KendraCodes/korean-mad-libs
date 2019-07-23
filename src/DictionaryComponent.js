@@ -13,10 +13,11 @@ export class DictionaryComponent extends Component {
       newEngWord: "",
       newKorWord: "",
       newCategory: "adverbs",
+      secretkey: ""
     }
   }
 
-  updateVocab = (category, english, korean) => {
+  updateVocab = (category, english, korean, secretKey) => {
 
     let updatedVocab = this.dictionary.addVocabWord(category, english, korean);
     if (!updatedVocab) {
@@ -31,13 +32,14 @@ export class DictionaryComponent extends Component {
       "method": "PUT",
       body: JSON.stringify(updatedVocab),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "secret-key": secretKey
       }
     });
   }
 
   onSubmitNewWordClick = () => {
-    this.updateVocab(this.state.newCategory, this.state.newEngWord, this.state.newKorWord);
+    this.updateVocab(this.state.newCategory, this.state.newEngWord, this.state.newKorWord, this.state.secretKey);
   }
 
   onNewEngWordTextChange = (event) => {
@@ -59,6 +61,11 @@ export class DictionaryComponent extends Component {
     });
   }
 
+  onSecretKeyBlur = (event) => {
+    this.setState({
+      secretKey: event.target.value 
+    });
+  }
 
   updateWordInList = (event) => {
     //get the index of hte words delete from list and then add it into that same position??
@@ -75,6 +82,8 @@ export class DictionaryComponent extends Component {
             })}
           </select>
         </div>
+
+        <div>Secret key(JSONbin.io) <input type="text" onBlur={this.onSecretKeyBlur}></input></div>
 
         <div>
           {this.dictionary.getVocab(this.state.newCategory).map((term, index) =>{
