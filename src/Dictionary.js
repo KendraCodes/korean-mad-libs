@@ -4,7 +4,7 @@ import { Conjugator } from "./Conjugator";
 export class Dictionary {
 
   static create = () => {
-    return fetch('https://api.jsonbin.io/b/5d0c50df84683733fbc7bab6/latest').then((response) => {
+    return fetch('https://koreanvocab.blob.core.windows.net/vocablist1/vocab.json').then((response) => {
       return response.json();
     }).then((vocab) => {
       return new Dictionary(vocab);
@@ -16,6 +16,8 @@ export class Dictionary {
     if (!vocab) {
       throw new Error("Cannot construct Dictionary with empty arguments, call Dictionary.create() instead.");
     }
+
+    console.log(localStorage.getItem("SASToken"));
     this.vocab = vocab;
     const conjugator = new Conjugator();
     this.verbTenses = conjugator.getVerbTenses();
@@ -25,13 +27,13 @@ export class Dictionary {
   pushChanges = () => {
 
     return fetch(
-      'https://api.jsonbin.io/b/5d0c50df84683733fbc7bab6'
-      // 'https://api.jsonbin.io/b/5d35fa4b820de330bab37ab5'
+      'https://koreanvocab.blob.core.windows.net/vocablist1/vocab.json?' + localStorage.getItem("SASToken")
       , {
         "method": "PUT",
         body: JSON.stringify(this.vocab),
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "x-ms-blob-type": "BlockBlob"
         }
       });
   }
