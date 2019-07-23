@@ -47,7 +47,7 @@ class App extends Component {
 
     return (
       <div className="main">
-        <h1>Korean Mad Libs</h1>
+        <h1>한국어 Mad Libs</h1>
         {this.state.dictionary &&
           <div className="contents">
             <SentenceCardComponent

@@ -18,6 +18,12 @@ export class DictionaryComponent extends Component {
   }
 
   onCategoryDropdownChange = (event) => {
+    if (this.state.unsavedWork) {
+      const shouldContinue = confirm('You have unsaved changes. Are you sure you want to leave?');
+      if (!shouldContinue) {
+        return;
+      }
+    }
     this.setState({
       curCategory: event.target.value,
       curVocabList: this.dictionary.getVocab(event.target.value),
@@ -49,7 +55,7 @@ export class DictionaryComponent extends Component {
       curVocabList: newVocab
     });
   }
-  
+
   buildOnChange = (itemIdx, tuplePos) => {
     return (event) => {
       const newVocab = this.state.curVocabList;
@@ -63,7 +69,7 @@ export class DictionaryComponent extends Component {
 
   render() {
     const vocabCategoriesDropdown = (
-      <select onChange={this.onCategoryDropdownChange} name="addWordDropdown" defaultValue={this.DEFAULT_CATEGORY}>
+      <select onChange={this.onCategoryDropdownChange} name="addWordDropdown" value={this.state}>
         {this.dictionary.getVocabCategories().map((category) => {
           return <option key={category} value={category}>{category}</option>
         })}
@@ -72,7 +78,7 @@ export class DictionaryComponent extends Component {
 
     const vocabItems = this.state.curVocabList.map((term, index) => {
       return (
-        <p key={'vocabEntry' + index}>
+        <p key={'vocabEntry' + index} className="vocab-entry">
           <input type="text" onChange={this.buildOnChange(index, 0)} value={this.state.curVocabList[index][0]}></input>
           <input type="text" onChange={this.buildOnChange(index, 1)} value={this.state.curVocabList[index][1]}></input>
         </p>
@@ -80,16 +86,20 @@ export class DictionaryComponent extends Component {
     });
 
     return (
-      <div style={this.props.show ? {} : { display: 'none' }}>
-        <div>
+      <div className="dictionary-container" style={this.props.show ? {} : { display: 'none' }}>
+        <div className="category-dropdown">
           <span>Category</span>
           {vocabCategoriesDropdown}
         </div>
         <div>
           {vocabItems}
         </div>
-        <button onClick={this.onNewItemButtonClick}>New Word</button>
-        <button disabled={!this.state.unsavedWork} onClick={this.onSaveButtonClick}>Save Changes</button>
+        <div className="button-container">
+          <button onClick={this.onNewItemButtonClick}>New Word</button>
+        </div>
+        <div className="button-container">
+          <button disabled={!this.state.unsavedWork} onClick={this.onSaveButtonClick}>Save Changes</button>
+        </div>
       </div >
     )
   }
