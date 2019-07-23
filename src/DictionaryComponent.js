@@ -25,6 +25,8 @@ export class DictionaryComponent extends Component {
       return false;
     }
 
+
+
     fetch(
       // 'https://api.jsonbin.io/b/5d0c50df84683733fbc7bab6'
       'https://api.jsonbin.io/b/5d35fa4b820de330bab37ab5'
@@ -90,8 +92,8 @@ export class DictionaryComponent extends Component {
             if(term !== undefined){
               console.log(term + " " + index);
               return <p> 
-                  <input type="text" data-pair={index} onBlur={this.updateWordInList} defaultValue={term[0]}></input>
-                  <input type="text" data-pair={index} onBlur={this.updateWordInList} defaultValue={term[1]}></input>  
+                  <input type="text" data-pair={index} onBlur={this.updateWordInList} value={term[0]}></input>
+                  <input type="text" data-pair={index} onBlur={this.updateWordInList} value={term[1]}></input>  
               </p> }
             return 
           })}
