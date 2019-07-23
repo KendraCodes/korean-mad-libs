@@ -4,96 +4,93 @@ import './App.css';
 //needs a dictionary to be passed into it
 export class DictionaryComponent extends Component {
 
+  DEFAULT_CATEGORY = 'nouns';
+
   constructor(props) {
     super(props);
 
     this.dictionary = props.dictionary;
 
     this.state = {
-      newEngWord: "",
-      newKorWord: "",
-      newCategory: "adverbs",
+      curCategory: this.DEFAULT_CATEGORY,
+      curVocabList: this.dictionary.getVocab(this.DEFAULT_CATEGORY)
     }
   }
 
-  updateVocab = (category, english, korean) => {
+  onCategoryDropdownChange = (event) => {
+    this.setState({
+      curCategory: event.target.value,
+      curVocabList: this.dictionary.getVocab(event.target.value),
+      unsavedWork: false
+    });
+  }
 
-    let updatedVocab = this.dictionary.addVocabWord(category, english, korean);
-    if (!updatedVocab) {
-      //no changes made
-      return false;
+  onSaveButtonClick = () => {
+    this.dictionary.editVocabWords(this.state.curCategory,
+      this.state.curVocabList.map((tuple, index) => {
+        return {
+          index,
+          tuple
+        }
+      }));
+
+    this.dictionary.pushChanges().then(() => {
+      this.setState({
+        unsavedWork: false,
+        curVocabList: this.dictionary.getVocab(this.state.curCategory)
+      });
+    });
+  }
+
+  onNewItemButtonClick = () => {
+    const newVocab = this.state.curVocabList;
+    newVocab.push(['', '']);
+    this.setState({
+      curVocabList: newVocab
+    });
+  }
+  
+  buildOnChange = (itemIdx, tuplePos) => {
+    return (event) => {
+      const newVocab = this.state.curVocabList;
+      newVocab[itemIdx][tuplePos] = event.target.value;
+      this.setState({
+        curVocabList: newVocab,
+        unsavedWork: true
+      });
     }
-
-    fetch(
-      // 'https://api.jsonbin.io/b/5d0c50df84683733fbc7bab6'
-      'https://api.jsonbin.io/b/5d35fa4b820de330bab37ab5'
-      , {
-      "method": "PUT",
-      body: JSON.stringify(updatedVocab),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-  }
-
-  onSubmitNewWordClick = () => {
-    this.updateVocab(this.state.newCategory, this.state.newEngWord, this.state.newKorWord);
-  }
-
-  onNewEngWordTextChange = (event) => {
-    this.setState({
-      newEngWord: event.target.value
-    });
-  }
-
-  onNewKorWordTextChange = (event) => {
-    this.setState({
-      newKorWord: event.target.value
-    });
-  }
-
-
-  onNewCategoryDropdownChange = (event) => {
-    this.setState({
-      newCategory: event.target.value
-    });
-  }
-
-
-  updateWordInList = (event) => {
-    //get the index of hte words delete from list and then add it into that same position??
-    console.log("pair " + event.target.dataset.pair + ", " + event.target.value + " " );
   }
 
   render() {
+    const vocabCategoriesDropdown = (
+      <select onChange={this.onCategoryDropdownChange} name="addWordDropdown" defaultValue={this.DEFAULT_CATEGORY}>
+        {this.dictionary.getVocabCategories().map((category) => {
+          return <option key={category} value={category}>{category}</option>
+        })}
+      </select>
+    );
+
+    const vocabItems = this.state.curVocabList.map((term, index) => {
+      return (
+        <p key={'vocabEntry' + index}>
+          <input type="text" onChange={this.buildOnChange(index, 0)} value={this.state.curVocabList[index][0]}></input>
+          <input type="text" onChange={this.buildOnChange(index, 1)} value={this.state.curVocabList[index][1]}></input>
+        </p>
+      );
+    });
+
     return (
-      <div style={this.props.show ? {} : {display: 'none'}}>Add New Word
-                <div>Category
-                <select onChange={this.onNewCategoryDropdownChange} name="addWordDropdown">
-            {this.dictionary.getVocabCategories().map((category) => {
-              return <option key={category} value={category}>{category}</option>
-            })}
-          </select>
-        </div>
-
+      <div style={this.props.show ? {} : { display: 'none' }}>
         <div>
-          {this.dictionary.getVocab(this.state.newCategory).map((term, index) =>{
-            if(term !== undefined){
-              console.log(term + " " + index);
-              return <p> 
-                  <input type="text" data-pair={index} onBlur={this.updateWordInList} defaultValue={term[0]}></input>
-                  <input type="text" data-pair={index} onBlur={this.updateWordInList} defaultValue={term[1]}></input>  
-              </p> }
-            return 
-          })}
+          <span>Category</span>
+          {vocabCategoriesDropdown}
         </div>
-        <button onClick={this.dosomething}>Edit Existing Words</button>
-
-        <div>Korean<input onChange={this.onNewKorWordTextChange} type="text" ></input></div>
-        <div>English<input onChange={this.onNewEngWordTextChange} type="text" ></input></div>
-         
-        <button onClick={this.onSubmitNewWordClick}>Add New Word</button>
-      </div>
+        <div>
+          {vocabItems}
+        </div>
+        <button onClick={this.onNewItemButtonClick}>New Word</button>
+        <button disabled={!this.state.unsavedWork} onClick={this.onSaveButtonClick}>Save Changes</button>
+      </div >
     )
   }
 }

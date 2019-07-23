@@ -43,6 +43,7 @@ class App extends Component {
 
     const contactMeText = `Thanks for helping me improve the site (and my Korean)! Please attach a screenshot of the problem and tell me what is wrong.`;
     const href = `mailto:deloris4@gmail.com?body=${contactMeText}`;
+    // const href = "https://github.com/KendraCodes/korean-mad-libs/issues/new";
 
     return (
       <div className="main">
@@ -55,7 +56,7 @@ class App extends Component {
             />
             {!this.state.showDictionary &&
               <div className="center-container fix-my-grammar">
-                <a href={href}>See a grammar or spelling mistake?</a>
+                <a href={href} target="_blank">Report a grammar or spelling mistake?</a>
               </div>
             }
             <HelpMeComponent

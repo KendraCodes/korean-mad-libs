@@ -22,6 +22,20 @@ export class Dictionary {
     this.adjectiveTenses = conjugator.getAdjectiveTenses();
   }
 
+  pushChanges = () => {
+
+    return fetch(
+      'https://api.jsonbin.io/b/5d0c50df84683733fbc7bab6'
+      // 'https://api.jsonbin.io/b/5d35fa4b820de330bab37ab5'
+      , {
+        "method": "PUT",
+        body: JSON.stringify(this.vocab),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+  }
+
 
   findWord = (searchTerm) => {
     searchTerm = searchTerm.toLowerCase();
@@ -64,6 +78,19 @@ export class Dictionary {
     return forms;
   }
 
+  editVocabWords = (category, workItems) => {
+
+    workItems.forEach((item) => {
+      this.vocab[category][item.index] = item.tuple;
+    });
+    
+    //only keep terms that have something in them
+    this.vocab[category] = this.vocab[category].filter((item) => {
+      return item[0].length > 0 || item[1].length > 0
+    });
+
+  }
+
   addVocabWord = (category, english, korean) => {
     //if both parts match an existing entry, don't add it
     if (this.vocab[category].some(tuple => tuple[0] == english && tuple[1] == korean)) {
@@ -77,12 +104,12 @@ export class Dictionary {
     return Object.keys(this.vocab);
   }
 
-  getVocab = (category) => {
-    return this.vocab[category];
-  }
-
-  getVocab = (cat1, cat2) => {
-    return this.vocab[cat1].concat(this.vocab[cat2])
+  getVocab = (...categories) => {
+    let combined = [];
+    for (let i = 0; i < categories.length; i++) {
+      combined = combined.concat(this.vocab[categories[i]]);
+    }
+    return combined;
   }
 
   makeQuizletFile = () => {
