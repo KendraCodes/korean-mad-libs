@@ -109,7 +109,7 @@ export class Dictionary {
     for (let i = 0; i < categories.length; i++) {
       combined = combined.concat(this.vocab[categories[i]]);
     }
-    return combined;
+    return JSON.parse(JSON.stringify(combined));
   }
 
   makeQuizletFile = () => {
