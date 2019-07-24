@@ -11,7 +11,6 @@ export class SentenceCardComponent extends Component {
 
     this.dictionary = props.dictionary;
     this.sentenceBuilder = new SentenceBuilder(this.props.dictionary);
-    // this.dictionary.makeQuizletFile();
     const firstSentence = this.sentenceBuilder.makeSentence();
     this.textInput = React.createRef();
     this.state = {
@@ -21,8 +20,6 @@ export class SentenceCardComponent extends Component {
       showKorean: false
     };
   }
-
-
 
   onShowAnswerClick = () => {
     this.setState({

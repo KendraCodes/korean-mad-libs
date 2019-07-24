@@ -4,12 +4,12 @@ export class Conjugator {
 
   LEVELS = [
     // '하소서체', //하나이다 archaic highest form used to address kings and queens or God
-    '합쇼체', //합니다 most common politest form for strangers, customers, etc
+    '합쇼체', //합니다 most common polite form
     // '하요체', //하오 archaic formal neutral, sometimes used on internet
     // '하게체', //하네 archaic formal netural, used by old people mostly
     '해라체', //한다 plain form, used in writing or quoting
     '해요체', //해요 informal polite
-    '해체', //해/해여 least formal, for children or very close friends
+    '해체', //해/해여 least polite and formal
   ];
   
   DEFAULT_LEVEL = '해라체';

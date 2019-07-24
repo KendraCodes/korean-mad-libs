@@ -170,10 +170,13 @@ export class SentenceBuilder {
       sp = "";
     }
 
-    //도 goes before 에 if it's present
-    if (place.length > 2) {
-      place[1] = place[1].slice(0, -1) + "에" + place[1].slice(-1);
-    }
+    //에 goes before 도 if it's present
+    //TODO fix this so that particles always end up in the right order
+    // if (place.length > 2) {
+    //   place[1] = place[1].slice(0, -1) + "에" + place[1].slice(-1);
+    // } else {
+    //   place[1] = place[1] + "에";
+    // }
 
     let verb, tense;
     let num = Math.floor(Math.random() * 2);
@@ -202,13 +205,17 @@ export class SentenceBuilder {
     if (subj.length > 2) {
       sp = "";
     }
-    if (other.length > 2) {
-      other[1] = other[1].slice(0, -1) + "에" + other[1].slice(-1);
-    }
+
+    //TODO fix this so that particles always end up in the right order
+    // if (other.length > 2) {
+    //   other[1] = other[1].slice(0, -1) + "에" + other[1].slice(-1);
+    // } else {
+    //   other[1] = other[1] + "에";
+    // }
 
     return {
       eng: `(the) ${subj[0]} is ${preposition[0]} (the) ${other[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${other[1]}${preposition[1]} ${tense[1]("있다")}`)
+      kor: josa(`${subj[1]}${sp} ${other[1]}${preposition[1]}에 ${tense[1]("있다")}`)
     }
   }
 

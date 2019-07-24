@@ -33,7 +33,7 @@ class App extends Component {
   }
 
   _handleContactMeClick = () => {
-    window.open('mailto:deloris4@gmail.com', '_blank');
+    window.open('https://www.linkedin.com/in/kendra-graham-b23a8b47/', '_blank');
   }
 
   _handleGoToSource = () => {
@@ -53,7 +53,6 @@ class App extends Component {
     }
     const contactMeFooter = this.makeFooterItem("Contact Me", this._handleContactMeClick);
 
-    // const contactMeText = `Thanks for helping me improve the site (and my Korean)! Please attach a screenshot of the problem and tell me what is wrong.`;
     const href = `https://docs.google.com/forms/d/e/1FAIpQLSePQrM36HZAQl6X9FbQRXiU3Z3gCqBIh5spNpH432POYr8xng/viewform?usp=sf_link`;
 
     return (
