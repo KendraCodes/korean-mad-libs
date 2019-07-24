@@ -2,9 +2,11 @@ import { Conjugator } from "./Conjugator";
 
 
 export class Dictionary {
+  
+  static STORAGE_SITE = 'https://koreanmadlibs.blob.core.windows.net/koreanvocab/vocab.json';
 
   static create = () => {
-    return fetch('https://koreanvocab.blob.core.windows.net/vocablist1/vocab.json').then((response) => {
+    return fetch(Dictionary.STORAGE_SITE).then((response) => {
       return response.json();
     }).then((vocab) => {
       return new Dictionary(vocab);
@@ -23,11 +25,11 @@ export class Dictionary {
     this.adjectiveTenses = conjugator.getAdjectiveTenses();
   }
 
-  pushChanges = (token) => {
+  pushChanges = () => {
 
     return fetch(
-      'https://koreanvocab.blob.core.windows.net/vocablist1/vocab.json?' + localStorage.getItem('SASToken')
-      , {
+      `${Dictionary.STORAGE_SITE}?${localStorage.getItem('SASToken')}`,
+      {
         "method": "PUT",
         body: JSON.stringify(this.vocab),
         headers: {
