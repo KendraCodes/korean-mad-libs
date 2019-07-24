@@ -33,17 +33,28 @@ class App extends Component {
   }
 
   _handleContactMeClick = () => {
-    console.log('contact the author');
+    window.open('mailto:deloris4@gmail.com', '_blank');
   }
 
+  _handleGoToSource = () => {
+    window.open('https://github.com/kendracodes/korean-mad-libs', '_blank');
+  }
+
+
   render() {
-    const leftButtonText = this.state.showDictionary ? "Sentence Practice" : "Edit Dictionary";
-    const editDictionaryFooter = this.makeFooterItem(leftButtonText, this._handleShowDictionaryClick);
+    let leftFooter = undefined;
+    if (localStorage.getItem('SASToken')) {
+      // if  a token exists in localStorage, give user the option to edit the dictionary
+      const leftButtonText = this.state.showDictionary ? "Sentence Practice" : "Edit Dictionary";
+      leftFooter = this.makeFooterItem(leftButtonText, this._handleShowDictionaryClick);
+    } else {
+      // otherwise, give them a link to the github project
+      leftFooter = this.makeFooterItem('Source Code', this._handleGoToSource);
+    }
     const contactMeFooter = this.makeFooterItem("Contact Me", this._handleContactMeClick);
 
-    const contactMeText = `Thanks for helping me improve the site (and my Korean)! Please attach a screenshot of the problem and tell me what is wrong.`;
-    const href = `mailto:deloris4@gmail.com?body=${contactMeText}`;
-    // const href = "https://github.com/KendraCodes/korean-mad-libs/issues/new";
+    // const contactMeText = `Thanks for helping me improve the site (and my Korean)! Please attach a screenshot of the problem and tell me what is wrong.`;
+    const href = `https://docs.google.com/forms/d/e/1FAIpQLSePQrM36HZAQl6X9FbQRXiU3Z3gCqBIh5spNpH432POYr8xng/viewform?usp=sf_link`;
 
     return (
       <div className="main">
@@ -71,7 +82,7 @@ class App extends Component {
         }
         <div className="footer">
           {contactMeFooter}
-          {editDictionaryFooter}
+          {leftFooter}
         </div>
       </div>
     );

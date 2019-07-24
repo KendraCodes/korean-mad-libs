@@ -17,17 +17,16 @@ export class Dictionary {
       throw new Error("Cannot construct Dictionary with empty arguments, call Dictionary.create() instead.");
     }
 
-    console.log(localStorage.getItem("SASToken"));
     this.vocab = vocab;
     const conjugator = new Conjugator();
     this.verbTenses = conjugator.getVerbTenses();
     this.adjectiveTenses = conjugator.getAdjectiveTenses();
   }
 
-  pushChanges = () => {
+  pushChanges = (token) => {
 
     return fetch(
-      'https://koreanvocab.blob.core.windows.net/vocablist1/vocab.json?' + localStorage.getItem("SASToken")
+      'https://koreanvocab.blob.core.windows.net/vocablist1/vocab.json?' + localStorage.getItem('SASToken')
       , {
         "method": "PUT",
         body: JSON.stringify(this.vocab),
@@ -60,24 +59,6 @@ export class Dictionary {
     });
 
     return results;
-  }
-
-  conjugateAdjective = (adj) => {
-    let forms = [];
-    const conjugator = new Conjugator();
-    forms.push("Descriptive form: " + conjugator.ㄴ은ifyAdjective(adj));
-    this.adjectiveTenses.forEach((tense) => {
-      forms.push(tense[0] + ": " + tense[1](adj));
-    });
-    return forms;
-  }
-
-  conjugateVerb = (verb) => {
-    let forms = [];
-    this.verbTenses.forEach((tense) => {
-      forms.push(tense[0] + ": " + tense[1](verb));
-    });
-    return forms;
   }
 
   editVocabWords = (category, workItems) => {

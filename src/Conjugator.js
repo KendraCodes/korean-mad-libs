@@ -2,7 +2,7 @@ import * as hangul from 'hangul-js';
 
 export class Conjugator {
 
-  levels = [
+  LEVELS = [
     // '하소서체', //하나이다 archaic highest form used to address kings and queens or God
     '합쇼체', //합니다 most common politest form for strangers, customers, etc
     // '하요체', //하오 archaic formal neutral, sometimes used on internet
@@ -11,18 +11,29 @@ export class Conjugator {
     '해요체', //해요 informal polite
     '해체', //해/해여 least formal, for children or very close friends
   ];
-
-  tenses = [
+  
+  DEFAULT_LEVEL = '해라체';
+  
+  TENSES = [
     'past',
     'present',
     'future',
   ];
+  
+  DEFAULT_TENSE = 'present';
 
-  constructions = [
-    ['ㄴ/은ify adjective', this.ㄴ은ifyAdjective]
+  TYPES = [
+    'verb',
+    'adjective'
   ];
 
-  buildConjugator = (tense, level, isVerb) => {
+  DEFAULT_TYPE = 'verb';
+
+  CONSTRUCTIONS = [
+    [ 'ㄴ/은ify adjective', this.ㄴ은ifyAdjective ]
+  ];
+
+  buildConjugator = (tense, level, type) => {
     const label = `${tense} ${level}`;
     let conjugator;
 
@@ -34,18 +45,18 @@ export class Conjugator {
         '해체': 'ㅆ어'
       }
       conjugator = (word) => {
-        return this.kor_append어아principle(this.kor_stripLast(word), pastPrinciples[level], isVerb);
+        return this.kor_append어아principle(this.kor_stripLast(word), pastPrinciples[level], type);
       }
     }
     else if (tense === 'present') {
       if (level === '합쇼체') {
         conjugator = (word) => {
-          return this.kor_addVC(this.kor_stripLast(word), "ㅂ니다", "습니다", isVerb);
+          return this.kor_addVC(this.kor_stripLast(word), "ㅂ니다", "습니다", type);
         }
       } else if (level === '해라체') {
-        if (isVerb) {
+        if (type === 'verb') {
           conjugator = (verb) => {
-            return this.kor_addVC(this.kor_stripLast(verb), "ㄴ다", "는다", isVerb);
+            return this.kor_addVC(this.kor_stripLast(verb), "ㄴ다", "는다", type);
           }
         } else {
           conjugator = (adj) => {
@@ -54,7 +65,7 @@ export class Conjugator {
         }
       } else if (level === '해요체' || level === '해체') {
         conjugator = (word) => {
-          return this.kor_append어아principle(this.kor_stripLast(word), level === '해요체' ? '요' : '', isVerb);
+          return this.kor_append어아principle(this.kor_stripLast(word), level === '해요체' ? '요' : '', type);
         }
       }
     }
@@ -75,9 +86,9 @@ export class Conjugator {
 
   getVerbTenses = () => {
     const verbTenses = [];
-    this.tenses.forEach((tense) => {
-      this.levels.forEach((level) => {
-        verbTenses.push(this.buildConjugator(tense, level, true));
+    this.TENSES.forEach((tense) => {
+      this.LEVELS.forEach((level) => {
+        verbTenses.push(this.buildConjugator(tense, level, 'verb'));
       });
     });
     return verbTenses;
@@ -85,9 +96,9 @@ export class Conjugator {
 
   getAdjectiveTenses = () => {
     const adjTenses = [];
-    this.tenses.forEach((tense) => {
-      this.levels.forEach((level) => {
-        adjTenses.push(this.buildConjugator(tense, level, false));
+    this.TENSES.forEach((tense) => {
+      this.LEVELS.forEach((level) => {
+        adjTenses.push(this.buildConjugator(tense, level, 'adjective'));
       });
     });
     return adjTenses;
@@ -98,7 +109,6 @@ export class Conjugator {
       return this.kor_stripLast(adj) + "는";
     }
 
-    let isVerb = false;
     let stem = this.kor_stripLast(adj);
     if (this.kor_getClosingConsonant(stem) === "ㅂ" && !this.kor_isㅂexception(adj)) {
       stem = this.kor_replaceFinalConsonant(stem, "우");
@@ -108,7 +118,7 @@ export class Conjugator {
       return stem + "은";
     }
 
-    return this.kor_addVC(stem, "ㄴ", "은", isVerb);
+    return this.kor_addVC(stem, "ㄴ", "은", 'adjective');
   }
 
   kor_concat = (...items) => {
@@ -164,7 +174,7 @@ export class Conjugator {
   }
 
   //verbs/adjectives must remove 다 before calling this
-  kor_append어아principle = (word, principle, isVerb) => {
+  kor_append어아principle = (word, principle, type) => {
     //special 하 case
     if (this.kor_getLast(word) === "하") {
       return this.kor_concat(this.kor_stripLast(word), "해", principle);
@@ -183,7 +193,7 @@ export class Conjugator {
     //first handle consonant irregulars that can cause mergers
     switch (this.kor_getClosingConsonant(word)) {
       case "ㄷ":
-        if (isVerb && !this.kor_verbIsㄷexception(word + "다")) {
+        if (type === 'verb' && !this.kor_verbIsㄷexception(word + "다")) {
           word = this.kor_replaceFinalConsonant(word, "ㄹ");
         }
         break;
@@ -205,7 +215,7 @@ export class Conjugator {
       //deal with all the consonant irregulars that don't result in merges
       switch (this.kor_getClosingConsonant(word)) {
         case "ㅅ":
-          if (!isVerb || !this.kor_isㅅexception(word + "다")) {
+          if (type === 'adjective' || !this.kor_isㅅexception(word + "다")) {
             word = this.kor_replaceFinalConsonant(word, "");
           }
           break;

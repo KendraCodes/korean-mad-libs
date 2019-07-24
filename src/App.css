@@ -117,13 +117,19 @@ h1 {
   text-align: right;
 }
 
-.search-dropdown {
+.dropdown-container {
   padding: 4px;
+  margin: 4px 8px;
 }
 
-.search-dropdown select {
-  margin: 8px;
+.dropdown-container span {
   font-size: 16px;
+}
+
+.dropdown-container select {
+  font-size: 14px;
+  min-height: 26px;
+  padding: 2px 4px;
 }
 
 .help-me-input-container {
