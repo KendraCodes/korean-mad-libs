@@ -85,7 +85,7 @@ export class HelpMeComponent extends Component {
       const buildOptions = (optionsList) => {
         return optionsList.map((option) => {
           return (
-            <option value={option}>{option}</option>
+            <option key={option} value={option}>{option}</option>
           );
         });
       }

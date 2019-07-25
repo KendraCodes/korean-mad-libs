@@ -81,7 +81,11 @@ export class Conjugator {
       }
     }
 
-    return [label, conjugator];
+
+    const conjugateWrapper = (word) => {
+        return conjugator(word.trim());
+    }
+    return [label, conjugateWrapper];
   }
 
   getVerbTenses = () => {
