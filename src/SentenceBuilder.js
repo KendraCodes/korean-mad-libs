@@ -3,44 +3,44 @@ import { josa, getJosaPicker, makeJosaify } from 'josa';
 
 import { Conjugator } from './Conjugator.js';
 
+const PLACE_NOUNS = 'placeNouns';
+const TIME_NOUNS = 'timeNouns';
+const SUBJECT_ONLY_NOUNS = 'subjectOnlyNouns';
+const NOUNS = 'nouns';
+const PREPOSITIONS = 'prepositions';
+const ADJECTIVES = 'adjectives';
+const VERBS = 'verbs';
+const PLACE_VERBS = 'placeVerbs';
+const ADVERBS = 'adverbs';
+
 export class SentenceBuilder {
 
   constructor(dictionary) {
-    let conjugator = new Conjugator();
+    this.conjugator = new Conjugator();
     this.dictionary = dictionary;
 
     this.possibleSentenceStructures = this.getPossibleSentenceStructures();
-    this.verbTenses = conjugator.getVerbTenses();
-    this.adjectiveTenses = conjugator.getAdjectiveTenses();
-    this.getDescriptiveAdj = conjugator.ㄴ은ifyAdjective;
-    this.isPronoun = {
-      "오리": true,
-      "저": true,
-      "나": true,
-      "너": true,
-      "이것": true,
-      "그것": true,
-      "저것": true,
-    }
+    this.verbTenses = this.conjugator.getVerbTenses();
+    this.adjectiveTenses = this.conjugator.getAdjectiveTenses();
+    this.getDescriptiveAdj = this.conjugator.ㄴ은ifyAdjective;
   }
 
   getPossibleSentenceStructures = () => {
-    let possible = []
+    const possible = [];
 
+    // lessons 1-7
+    possible.push(this.nounHasNoun);
+    possible.push(this.nounIsPrepositionOtherNoun);
+    possible.push(this.nounIsAdjective);
+    possible.push(this.nounVerbs);
+    possible.push(this.nounVerbsNoun);
+    // lessons 8 and 9
     for (let i = 0; i < 2; ++i) {
-      possible.push(this.phrase);
-    }
-    for (let i = 0; i < 4; ++i) {
-      possible.push(this.nounHasNoun);
-      possible.push(this.nounVerbPlace);
-      possible.push(this.nounIsPrepositionOtherNoun);
-      possible.push(this.nounVerbs);
-    }
-    for (let i = 0; i < 8; ++i) {
-      possible.push(this.nounIsAdjective);
-    }
-    for (let i = 0; i < 12; ++i) {
-      possible.push(this.nounVerbsNoun);
+      possible.push(this.nounVerbsAtPlace);
+      possible.push(this.nounVerbsAtTime);
+      possible.push(this.nounVerbsAdverbily);
+      possible.push(this.nounIsNoun); // 이다
+      possible.push(this.nounIsNotNoun); // 아니다
     }
 
     return possible;
@@ -48,39 +48,52 @@ export class SentenceBuilder {
 
   chooseRandom = (arr) => { return arr[Math.floor(Math.random() * arr.length)]; }
 
-  placeNoun = () => { return this.chooseRandom(this.dictionary.getVocab("placeNouns")); }
+  placeNoun = () => { return this.chooseRandom(this.dictionary.getVocab(PLACE_NOUNS)); }
 
-  timeNoun = () => { return this.chooseRandom(this.dictionary.getVocab("timeNoun")); }
+  timeNoun = () => { return this.chooseRandom(this.dictionary.getVocab(TIME_NOUNS)); }
 
-  subjectNoun = () => { return this.chooseRandom(this.dictionary.getVocab("subjectOnlyNouns")); }
+  subjectNoun = () => { return this.chooseRandom(this.dictionary.getVocab(SUBJECT_ONLY_NOUNS)); }
 
-  subjectNounPlus = () => { return this.chooseRandom(this.dictionary.getVocab("nouns", "subjectOnlyNouns")); }
+  subjectNounPlus = () => { return this.chooseRandom(this.dictionary.getVocab(NOUNS, SUBJECT_ONLY_NOUNS)); }
 
-  noun = () => { return this.chooseRandom(this.dictionary.getVocab("nouns")); }
+  noun = () => { return this.chooseRandom(this.dictionary.getVocab(NOUNS)); }
 
-  preposition = () => { return this.chooseRandom(this.dictionary.getVocab("prepositions")); }
+  preposition = () => { return this.chooseRandom(this.dictionary.getVocab(PREPOSITIONS)); }
 
-  adjective = () => { return this.chooseRandom(this.dictionary.getVocab("adjectives")); }
+  adjective = () => { return this.chooseRandom(this.dictionary.getVocab(ADJECTIVES)); }
 
-  verb = () => { return this.chooseRandom(this.dictionary.getVocab("verbs")); }
+  verb = () => { return this.chooseRandom(this.dictionary.getVocab(VERBS)); }
 
-  placeVerb = () => { return this.chooseRandom(this.dictionary.getVocab("placeVerbs")); }
+  placeVerb = () => { return this.chooseRandom(this.dictionary.getVocab(PLACE_VERBS)); }
 
-  adverb = () => { return this.chooseRandom(this.dictionary.getVocab("adverbs")); }
+  adverb = () => { return this.chooseRandom(this.dictionary.getVocab(ADVERBS)); }
 
   verbTense = () => { return this.chooseRandom(this.verbTenses); }
 
   adjectiveTense = () => { return this.chooseRandom(this.adjectiveTenses); }
 
-
+  isPronoun = (noun) => {
+    switch (noun) {
+      case "오리":
+      case "저":
+      case "나":
+      case "너":
+      case "이것":
+      case "그것":
+      case "저것":
+        return true;
+      default:
+        return false;
+    }
+  }
   possessNoun = (noun) => {
     //putting a descriptor in front of a pronoun sounds stupid
-    if (this.isPronoun[noun[1]]) {
+    if (this.isPronoun(noun[1])) {
       return noun;
     }
 
-    let possessor = this.subjectNounPlus();
-    let english = possessor[0] + "'s " + noun[0];
+    const possessor = this.subjectNounPlus();
+    const english = possessor[0] + "'s " + noun[0];
 
     let korean = possessor[1] + "의 ";
     //handle irregular possessive pronouns
@@ -96,24 +109,32 @@ export class SentenceBuilder {
 
   describeNoun = (noun) => {
     //putting a descriptor in front of a pronoun sounds stupid
-    if (this.isPronoun[noun[1]]) {
+    if (this.isPronoun(noun[1])) {
       return noun;
     }
 
-    let adj = this.adjective();
-    let english = adj[0] + " " + noun[0];
-    let korean = this.getDescriptiveAdj(adj[1]) + " " + noun[1];
+    const adj = this.adjective();
+    const english = adj[0] + " " + noun[0];
+    const korean = this.getDescriptiveAdj(adj[1]) + " " + noun[1];
     return [english, korean];
   }
 
   도ifyNoun = (noun) => {
-    let english = noun[0] + ", too,";
-    let korean = noun[1] + "도";
+    const english = noun[0] + ", too,";
+    const korean = noun[1] + "도";
     return [english, korean, true];
   }
 
+  addParticle = (noun, particle) => {
+    if (noun.length > 2) {
+      return noun[1];
+    } else {
+      return `${noun[1]}#{${particle}}`;
+    }
+  }
+
   decorateNoun = (noun) => {
-    let num = Math.floor(Math.random() * 20) + 1;
+    const num = Math.floor(Math.random() * 20) + 1;
     switch (num) {
       case 1:
         return this.possessNoun(noun);
@@ -131,153 +152,214 @@ export class SentenceBuilder {
     }
   }
 
-  phrase = () => {
-    let phrase = this.chooseRandom(this.dictionary.getVocab("phrases"));
-    return {
-      eng: phrase[0],
-      kor: phrase[1]
-    }
-  }
-
   nounHasNoun = () => {
-    let subj = this.decorateNoun(this.subjectNounPlus());
-    let obj = this.decorateNoun(this.noun());
+    const subj = this.decorateNoun(this.subjectNounPlus());
+    const obj = this.decorateNoun(this.noun());
 
-    let tense = this.adjectiveTense();
+    const tense = this.adjectiveTense();
 
-    let sp = "#{는}";
-    //more than two things means decorateNoun already put a particle on it
-    if (subj.length > 2) {
-      sp = "";
-    }
-    let op = "#{가}";
-    if (obj.length > 2) {
-      op = "";
-    }
-    return {
-      eng: `the ${subj[0]} has (a) ${obj[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${obj[1]}${op} ${tense[1]("있다")}`)
+    subj[1] = this.addParticle(subj, '는');
+    obj[1] = this.addParticle(obj, '가');
+
+    if (Math.random() * 3 < 1) {
+      return {
+        eng: `the ${subj[0]} doesn't have (a) ${obj[0]} (${tense[0]})`,
+        kor: josa(`${subj[1]} ${obj[1]} ${tense[1]("없다")}`)
+      }
+    } else {
+      return {
+        eng: `the ${subj[0]} has (a) ${obj[0]} (${tense[0]})`,
+        kor: josa(`${subj[1]} ${obj[1]} ${tense[1]("있다")}`)
+      }
     }
   }
 
-  nounVerbPlace = () => {
-    let subj = this.decorateNoun(this.subjectNounPlus());
-    let place = this.decorateNoun(this.placeNoun());
+  nounIsPrepositionOtherNoun = () => {
+    const subj = this.decorateNoun(this.subjectNounPlus());
+    const other = this.noun();
+    const preposition = this.preposition();
+    const tense = this.adjectiveTense();
 
-    let sp = "#{는}";
-    //more than two things means decorateNoun already put a particle on it
-    if (subj.length > 2) {
-      sp = "";
+    subj[1] = this.addParticle(subj, '는');
+
+    return {
+      eng: `(the) ${subj[0]} is ${preposition[0]} (the) ${other[0]} (${tense[0]})`,
+      kor: josa(`${subj[1]} ${other[1]}${preposition[1]}에 ${tense[1]("있다")}`)
     }
+  }
 
-    //에 goes before 도 if it's present
-    //TODO fix this so that particles always end up in the right order
-    // if (place.length > 2) {
-    //   place[1] = place[1].slice(0, -1) + "에" + place[1].slice(-1);
-    // } else {
-    //   place[1] = place[1] + "에";
-    // }
+  nounIsAdjective = () => {
+    const subj = this.decorateNoun(this.subjectNounPlus());
+    const adjective = this.adjective();
+    const tense = this.adjectiveTense();
+
+    if (adjective[1] == "많다") {
+      subj[1] = this.addParticle(subj, '이');
+    } else {
+      subj[1] = this.addParticle(subj, '는');
+    }
+    return {
+      eng: `(the) ${subj[0]} is ${adjective[0]} (${tense[0]})`,
+      kor: josa(`${subj[1]} ${tense[1](adjective[1])}`)
+    }
+  }
+
+  nounVerbs = () => {
+    const subj = this.decorateNoun(this.subjectNounPlus());
+    const verb = this.verb();
+    const tense = this.verbTense();
+
+    subj[1] = this.addParticle(subj, '는');
+    return {
+      eng: `(the) ${subj[0]} ${verb[0]} (${tense[0]})`,
+      kor: josa(`${subj[1]} ${tense[1](verb[1])}`)
+    }
+  }
+
+  nounVerbsNoun = () => {
+    const subj = this.decorateNoun(this.subjectNounPlus());
+    const verb = this.verb();
+    const obj = this.decorateNoun(this.noun());
+    const tense = this.verbTense();
+
+    subj[1] = this.addParticle(subj, '는');
+    obj[1] = this.addParticle(obj, '를');
+    return {
+      eng: `(the) ${subj[0]} ${verb[0]} the ${obj[0]} (${tense[0]})`,
+      kor: josa(`${subj[1]} ${obj[1]} ${tense[1](verb[1])}`)
+    }
+  }
+
+  nounVerbsAtPlace = () => {
+    const subj = this.decorateNoun(this.subjectNounPlus());
+    const place = this.placeNoun();
 
     let verb, tense;
-    let num = Math.floor(Math.random() * 2);
-    if (num > 0) {
+    const num = Math.floor(Math.random() * 3);
+    if (num > 2) {
       verb = this.placeVerb();
       tense = this.verbTense();
+    } else if (num > 1) {
+      verb = ["is not at", "없다"];
+      tense = this.adjectiveTense();
     } else {
       verb = ["is at", "있다"];
       tense = this.adjectiveTense();
     }
 
+    subj[1] = this.addParticle(subj, '는');
     return {
       eng: `(the) ${subj[0]} ${verb[0]} (the) ${place[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${place[1]} ${tense[1](verb[1])}`)
+      kor: josa(`${subj[1]} ${place[1]}에 ${tense[1](verb[1])}`)
     }
   }
 
-  nounIsPrepositionOtherNoun = () => {
-    let subj = this.decorateNoun(this.subjectNounPlus());
-    let other = this.decorateNoun(this.noun());
-    let preposition = this.preposition();
+  nounVerbsAtTime = () => {
+    const subj = this.decorateNoun(this.subjectNounPlus());
+    const time = this.timeNoun();
+    const verb = this.verb();
+    const tense = this.verbTense();
 
-    let tense = this.adjectiveTense();
-    let sp = "#{는}";
-    //more than two things means decorateNoun already put a particle on it
-    if (subj.length > 2) {
-      sp = "";
-    }
-
-    //TODO fix this so that particles always end up in the right order
-    // if (other.length > 2) {
-    //   other[1] = other[1].slice(0, -1) + "에" + other[1].slice(-1);
-    // } else {
-    //   other[1] = other[1] + "에";
-    // }
-
+    subj[1] = this.addParticle(subj, '는');
     return {
-      eng: `(the) ${subj[0]} is ${preposition[0]} (the) ${other[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${other[1]}${preposition[1]}에 ${tense[1]("있다")}`)
+      eng: `(the) ${subj[0]} ${verb[0]} (at/on/in the) ${time[0]} (${tense[0]})`,
+      kor: josa(`${subj[1]} ${time[1]}에 ${tense[1](verb[1])}`)
     }
   }
 
-  nounVerbs = () => {
-    let subj = this.decorateNoun(this.subjectNounPlus());
-    let verb = this.verb();
-    let tense = this.verbTense();
+  nounVerbsAdverbily = () => {
+    const subj = this.decorateNoun(this.subjectNounPlus());
+    const verb = this.verb();
+    const adverb = this.adverb();
+    const tense = this.verbTense();
 
-    let sp = "#{는}";
-    //more than two things means decorateNoun already put a particle on it
-    if (subj.length > 2) {
-      sp = "";
-    }
+    subj[1] = this.addParticle(subj, '는');
     return {
-      eng: `(the) ${subj[0]} ${verb[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${tense[1](verb[1])}`)
+      eng: `(the) ${subj[0]} ${verb[0]} ${adverb[0]} (${tense[0]})`,
+      kor: josa(`${subj[1]} ${adverb[1]} ${tense[1](verb[1])}`)
     }
   }
 
-  nounIsAdjective = () => {
-    let subj = this.decorateNoun(this.subjectNounPlus());
-    let adjective = this.adjective();
-    let tense = this.adjectiveTense();
+  nounIsNoun = () => {
+    const thingA = this.decorateNoun(this.subjectNounPlus());
+    const thingB = this.noun();
+    const tense = this.chooseRandom(['past', 'present']);
+    const level = this.chooseRandom(this.conjugator.LEVELS);
 
-    let sp = "#{는}";
-    if (adjective[1] == "많다") {
-      sp = "${이}";
-    }
-    //more than two things means decorateNoun already put a particle on it
-    if (subj.length > 2) {
-      sp = "";
-    }
+    thingA[1] = this.addParticle(thingA, '는');
+    thingB[1] = this.conjugator.append이다(thingB[1], tense, level);
     return {
-      eng: `(the) ${subj[0]} is ${adjective[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${tense[1](adjective[1])}`)
+      eng: `(the) ${thingA[0]} is (a) ${thingB[0]} (${tense} ${level})`,
+      kor: josa(`${thingA[1]} ${thingB[1]}`)
     }
   }
 
-  nounVerbsNoun = () => {
-    let subj = this.decorateNoun(this.subjectNounPlus());
-    let verb = this.verb();
-    let obj = this.decorateNoun(this.noun());
-    let tense = this.verbTense();
+  nounIsNotNoun = () => {
+    const thingA = this.decorateNoun(this.subjectNounPlus());
+    const thingB = this.noun();
+    const tense = this.chooseRandom(['past', 'present']);
+    const level = this.chooseRandom(this.conjugator.LEVELS);
 
-    let sp = "#{는}";
-    //more than two things means decorateNoun already put a particle on it
-    if (subj.length > 2) {
-      sp = "";
-    }
-    let op = "#{를}";
-    if (obj.length > 2) {
-      op = "";
-    }
+    thingA[1] = this.addParticle(thingA, '는');
+    thingB[1] = this.addParticle(thingB, '이');
     return {
-      eng: `(the) ${subj[0]} ${verb[0]} the ${obj[0]} (${tense[0]})`,
-      kor: josa(`${subj[1]}${sp} ${obj[1]}${op} ${tense[1](verb[1])}`)
+      eng: `(the) ${thingA[0]} is not (a) ${thingB[0]} (${tense} ${level})`,
+      kor: josa(`${thingA[1]} ${thingB[1]} ${this.conjugator.conjugate아니다(tense, level)}`)
     }
   }
+
+  nounVerbsAtTime = () => {
+    return {
+      eng: 'not implemented yet',
+      kor: '안 끝내다'
+    }
+
+  }
+
+
 
   makeSentence = () => {
-    let func = this.chooseRandom(this.possibleSentenceStructures);
+    const func = this.chooseRandom(this.possibleSentenceStructures);
     return func();
   }
+
+  makeConjugation = () => {
+    const verbs = this.dictionary.getVocab(VERBS);
+    const adjectives = this.dictionary.getVocab(ADJECTIVES);
+    const random = Math.random() * (verbs.length + adjectives.length);
+    let word, tense;
+    if (random < verbs.length) {
+      word = this.chooseRandom(verbs);
+      tense = this.verbTense();
+    } else {
+      word = this.chooseRandom(adjectives);
+      tense = this.adjectiveTense();
+    }
+    return {
+      eng: `${word[0]} (${tense[0]})`,
+      kor: tense[1](word[1])
+    }
+  }
+
+  makeVocabWord = () => {
+    const words = this.dictionary.getVocab(
+      PLACE_NOUNS,
+      TIME_NOUNS,
+      SUBJECT_ONLY_NOUNS,
+      NOUNS,
+      PREPOSITIONS,
+      ADJECTIVES,
+      VERBS,
+      PLACE_VERBS,
+      ADVERBS
+    );
+    const word = this.chooseRandom(words);
+    return {
+      eng: word[0],
+      kor: word[1]
+    }
+  }
+
+
 
 }

@@ -4,7 +4,6 @@ import { Conjugator } from './Conjugator';
 
 export class HelpMeComponent extends Component {
 
-
   constructor(props) {
     super(props);
 
@@ -85,7 +84,7 @@ export class HelpMeComponent extends Component {
       const buildOptions = (optionsList) => {
         return optionsList.map((option) => {
           return (
-            <option value={option}>{option}</option>
+            <option key={option} value={option}>{option}</option>
           );
         });
       }

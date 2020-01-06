@@ -45,7 +45,7 @@ class App extends Component {
     let leftFooter = undefined;
     if (localStorage.getItem('SASToken')) {
       // if  a token exists in localStorage, give user the option to edit the dictionary
-      const leftButtonText = this.state.showDictionary ? "Sentence Practice" : "Edit Dictionary";
+      const leftButtonText = this.state.showDictionary ? "Practice" : "Edit Dictionary";
       leftFooter = this.makeFooterItem(leftButtonText, this._handleShowDictionaryClick);
     } else {
       // otherwise, give them a link to the github project

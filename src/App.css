@@ -60,6 +60,11 @@ h1 {
 
 /* SentenceCardComponent styles */
 
+.practice-mode {
+  margin: 20px;
+  font-size: 16px;
+}
+
 .card {
   margin: 20px;
   padding: 12px;
@@ -97,7 +102,7 @@ h1 {
 
 }
 
-.new-sentence-button-container {
+.next-button-container {
   text-align: right;
   margin-top: 16px;
 }

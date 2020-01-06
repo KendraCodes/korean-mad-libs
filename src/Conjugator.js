@@ -11,15 +11,16 @@ export class Conjugator {
     '해요체', //해요 informal polite
     '해체', //해/해여 least polite and formal
   ];
-  
+
   DEFAULT_LEVEL = '해라체';
-  
+
   TENSES = [
     'past',
     'present',
-    'future',
+    'future (겠다)',
+    'future (을 거야)'
   ];
-  
+
   DEFAULT_TENSE = 'present';
 
   TYPES = [
@@ -30,12 +31,56 @@ export class Conjugator {
   DEFAULT_TYPE = 'verb';
 
   CONSTRUCTIONS = [
-    [ 'ㄴ/은ify adjective', this.ㄴ은ifyAdjective ]
+    ['ㄴ/은ify adjective', this.ㄴ은ifyAdjective]
   ];
 
-  buildConjugator = (tense, level, type) => {
-    const label = `${tense} ${level}`;
-    let conjugator;
+  conjugate아니다 = (tense, level) => {
+    if (tense !== 'past' && tense !== 'present') {
+      return "I can't conjugate that one"
+    }
+    const endings = {
+      'present': {
+        '합쇼체': '아닙니다',
+        '해라체': '아니다',
+        '해요체': '아니에요',
+        '해체': '아니야'
+      },
+      'past': {
+        '합쇼체': '아니었습니다',
+        '해라체': '아니었다',
+        '해요체': '아니었어요',
+        '해체': '아니었어'
+      }
+    }
+    return endings[tense][level];
+  }
+
+  append이다 = (word, tense, level) => {
+    if (tense !== 'past' && tense !== 'present') {
+      return "I can't conjugate that one"
+    }
+    const endsVowel = !hangul.endsWithConsonant(this.kor_getLast(word));
+    const endings = {
+      'present': {
+        '합쇼체': '입니다',
+        '해라체': endsVowel ? '다' : '이다',
+        '해요체': endsVowel ? '예요' : '이에요',
+        '해체': endsVowel ? '야' : '이야',
+      },
+      'past': {
+        '합쇼체': endsVowel ? '였습니다' : '이었습니다',
+        '해라체': endsVowel ? '였다' : '이었다',
+        '해요체': endsVowel ? '였어요' : '이었어요',
+        '해체': endsVowel ? '였어' : '이었어'
+      }
+    }
+    return `${word}${endings[tense][level]}`
+  }
+
+  conjugate = (word, tense, level, type) => {
+    if (word === '이다' || word === '아니다' || word.slice(-1) !== '다') {
+      return "I can't conjugate that one";
+    }
 
     if (tense === 'past') {
       const pastPrinciples = {
@@ -44,44 +89,51 @@ export class Conjugator {
         '해요체': 'ㅆ어요',
         '해체': 'ㅆ어'
       }
-      conjugator = (word) => {
-        return this.kor_append어아principle(this.kor_stripLast(word), pastPrinciples[level], type);
-      }
+      return this.kor_append어아principle(this.kor_stripLast(word), pastPrinciples[level], type);
     }
     else if (tense === 'present') {
-      if (level === '합쇼체') {
-        conjugator = (word) => {
+      switch (level) {
+        case '합쇼체':
           return this.kor_addVC(this.kor_stripLast(word), "ㅂ니다", "습니다", type);
-        }
-      } else if (level === '해라체') {
-        if (type === 'verb') {
-          conjugator = (verb) => {
-            return this.kor_addVC(this.kor_stripLast(verb), "ㄴ다", "는다", type);
+        case '해라체':
+          if (type === 'verb') {
+            return this.kor_addVC(this.kor_stripLast(word), "ㄴ다", "는다", type);
+          } else {
+            return word;
           }
-        } else {
-          conjugator = (adj) => {
-            return adj;
-          }
-        }
-      } else if (level === '해요체' || level === '해체') {
-        conjugator = (word) => {
+        case '해요체':
+        case '해체':
           return this.kor_append어아principle(this.kor_stripLast(word), level === '해요체' ? '요' : '', type);
-        }
+        default:
+          return word;
       }
     }
-    else if (tense === 'future') {
-      const futurePrinciples = {
+    else if (tense === 'future (겠다)') {
+      const 겠다Principles = {
         '합쇼체': '겠습니다',
         '해라체': '겠다',
         '해요체': '겠어요',
         '해체': '겠어'
       }
-      conjugator = (word) => {
-        return this.kor_stripLast(word) + futurePrinciples[level];
-      }
+      return this.kor_stripLast(word) + 겠다Principles[level];
     }
+    else if (tense === 'future (을 거야)') {
+      const verb = this.kor_addVC(this.kor_stripLast(word), 'ㄹ', '을', type);
+      const 이다Principles = {
+        '합쇼체': '것입니다',
+        '해라체': '것이다',
+        '해요체': '거예요',
+        '해체': '거야'
+      }
+      return `${verb} ${이다Principles[level]}`
+    }
+  }
 
-    return [label, conjugator];
+  buildConjugator = (tense, level, type) => {
+    return [`${tense} ${level}`, (rawWord) => {
+      const word = rawWord.trim();
+      return this.conjugate(word, tense, level, type);
+    }];
   }
 
   getVerbTenses = () => {
@@ -159,11 +211,27 @@ export class Conjugator {
   }
 
   //verbs/adjectives must remove 다 before calling this
-  //handles the ㄹ irregular but not the ㅂ irregular
-  kor_addVC = (word, vEnding, cEnding) => {
-    //handle ㄹ irregular
-    if (this.kor_getClosingConsonant(word) === "ㄹ" && !this.kor_isㅂexception(word + "다")) {
-      word = this.kor_replaceFinalConsonant(word, "");
+  //handles the ㄹ irregular and ㅂ irregular depending on the ending
+  kor_addVC = (word, vEnding, cEnding, type) => {
+    if (vEnding.slice(0, 1) === 'ㄹ' && cEnding.slice(0, 1) === '을') {
+      switch (this.kor_getClosingConsonant(word)) {
+        case 'ㅅ':
+          word = this.kor_replaceFinalConsonant(word, "");
+          return this.kor_concat(word, '을');
+        case "ㄷ":
+          word = this.kor_replaceFinalConsonant(word, "ㄹ");
+          return this.kor_concat(word, '을');
+        case 'ㅂ':
+          word = this.kor_replaceFinalConsonant(word, '우');
+          break;
+
+      }
+    }
+    if (type === 'verb' || type === 'adjective') {
+      //handle ㄹ irregular
+      if (this.kor_getClosingConsonant(word) === "ㄹ") {
+        word = this.kor_replaceFinalConsonant(word, "");
+      }
     }
 
     if (hangul.endsWithConsonant(this.kor_getLast(word))) {
@@ -203,8 +271,8 @@ export class Conjugator {
           if (this.kor_isㅂ오exception(word + "다"))
             ending = "오";
           word = this.kor_replaceFinalConsonant(word, ending);
-          break;
         }
+        break;
       default:
         break;
     }

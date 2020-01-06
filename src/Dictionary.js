@@ -41,7 +41,7 @@ export class Dictionary {
 
 
   findWord = (searchTerm) => {
-    searchTerm = searchTerm.toLowerCase();
+    searchTerm = searchTerm.toLowerCase().trim();
     let results = [];
     let searchArray = (tuple) => {
       let engWord = tuple[0].toLowerCase();
